@@ -62,16 +62,14 @@ Browser
 
 ### Como Executar os Scripts da Aula
 
-Ao lado do **Console SQL**, você encontrará o seletor **Arquivo de Script** com os arquivos da pasta `scripts/` (`DDL.sql`, `DML.sql`, `DQL.sql`) e o botão **▶ Executar Script**.
+Ao lado do **Console SQL**, há o botão **📂 Carregar Script**:
 
-- **Execução Automática (servidor local / Live Server):**  
-  Se você abrir o projeto com um servidor local (ex: extensão **Live Server** do VS Code ou `npx serve`), ao clicar em **▶ Executar Script**, o script selecionado é lido e executado imediatamente.
+1. Clique no botão **📂 Carregar Script**.
+2. Na janela que se abre, escolha qualquer arquivo `.sql` da pasta `scripts/` (como `DDL.sql`, `DML.sql` ou `DQL.sql`).
+3. O script é lido localmente (sem erro de CORS), seu conteúdo é exibido no Console SQL e executado imediatamente no banco SQLite!
+4. O resultado (confirmação ou tabela de resultados de consultas SELECT) é apresentado na caixa de resultados abaixo do console.
 
-- **Execução via Arquivo Local (`file:///` - Duplo clique no HTML):**  
-  Como os navegadores bloqueiam requisições de rede diretas (`fetch`) em arquivos locais por política de segurança (CORS), ao clicar em **▶ Executar Script**, abrirá automaticamente a janela do Windows para você selecionar o arquivo `.sql` que acabou de salvar na pasta `scripts`. O script é lido e executado instantaneamente!
-
-- **Execução Manual:**  
-  Você também pode simplesmente copiar o código SQL do arquivo no VS Code, colar no campo do **Console SQL** e clicar em **▶ Executar SQL**.
+> **Dica:** Você também pode digitar ou colar diretamente comandos no campo de texto do Console SQL e clicar em **▶ Executar SQL**.
 
 ---
 

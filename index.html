@@ -41,14 +41,8 @@
         <button id="btn-clear-console" class="btn-secondary">✖ Limpar</button>
       </div>
 
-      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <label for="script-select" style="font-weight: 600; font-size: 0.82rem; color: var(--text-muted);">Arquivo de Script:</label>
-        <select id="script-select" style="padding: 6px 10px; font-weight: 500;">
-          <option value="DDL.sql">DDL.sql – Definir estrutura</option>
-          <option value="DML.sql">DML.sql – Manipulação</option>
-          <option value="DQL.sql">DQL.sql – Consultas</option>
-        </select>
-        <button id="btn-exec-script" class="btn-danger">▶ Executar Script</button>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="btn-load-script" class="btn-danger">📂 Carregar Script</button>
         <input type="file" id="script-file-picker" accept=".sql" style="display: none;" />
       </div>
     </div>

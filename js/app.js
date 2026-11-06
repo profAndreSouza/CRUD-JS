@@ -143,9 +143,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  /* ── EXECUÇÃO DE SCRIPTS (.sql) ──────────────────────────────── */
-  const scriptSelect  = document.getElementById('script-select');
-  const btnExecScript = document.getElementById('btn-exec-script');
+  /* ── CARREGAMENTO E EXECUÇÃO DE SCRIPTS (.sql) ──────────────── */
+  const btnLoadScript = document.getElementById('btn-load-script');
   const filePicker    = document.getElementById('script-file-picker');
   const boxResult     = document.getElementById('sql-result-box');
   const sqlInput      = document.getElementById('sql-input');
@@ -183,10 +182,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         boxResult.innerHTML = htmlResult;
       } else {
-        boxResult.innerHTML = `<p class="msg-success">✅ Script <strong>${nomeArquivo}</strong> executado com sucesso no banco SQLite!</p>`;
+        boxResult.innerHTML = `<p class="msg-success">✅ Script <strong>${nomeArquivo}</strong> carregado e executado com sucesso no SQLite!</p>`;
       }
 
-      showToast(`Script ${nomeArquivo} executado com sucesso!`, 'success');
+      showToast(`Script ${nomeArquivo} carregado e executado!`, 'success');
     } catch (err) {
       boxResult.innerHTML = `<p class="msg-error">❌ Erro ao executar ${nomeArquivo}:\n${err.message}</p>`;
       showToast(`Erro no script: ${err.message}`, 'error');
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Listener para o input de arquivo (fallback quando aberto via file://)
+  // Listener do seletor de arquivos (FileReader - sem bloqueio CORS)
   if (filePicker) {
     filePicker.addEventListener('change', e => {
       const file = e.target.files[0];
@@ -205,35 +204,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       reader.onerror = () => showToast('Erro ao ler o arquivo selecionado.', 'error');
       reader.readAsText(file);
-      // Limpa o valor para permitir selecionar o mesmo arquivo novamente após editá-lo
+      // Limpa para permitir selecionar o mesmo arquivo novamente se for editado
       filePicker.value = '';
     });
   }
 
-  // Executa o script escolhido no select
-  if (btnExecScript) {
-    btnExecScript.addEventListener('click', async () => {
-      const fileName = scriptSelect ? scriptSelect.value : 'DDL.sql';
-
-      // Se estiver em file:///, browsers bloqueiam fetch por política de CORS.
-      // Nesse caso, abre direto o seletor para o usuário escolher o arquivo da pasta scripts.
-      if (window.location.protocol === 'file:') {
-        showToast(`📂 Selecione o arquivo "${fileName}" na pasta scripts...`, 'info');
-        if (filePicker) filePicker.click();
-        return;
-      }
-
-      // Se estiver em HTTP/HTTPS (ex: Live Server do VS Code)
-      try {
-        const resp = await fetch(`scripts/${fileName}?_t=${Date.now()}`);
-        if (!resp.ok) throw new Error(`Status ${resp.status} - Arquivo não encontrado`);
-        const txt = await resp.text();
-        executarConteudoSQL(txt, fileName);
-      } catch (err) {
-        // Se o fetch falhar, tenta fallback via seletor de arquivo local
-        showToast(`Fetch bloqueado. Selecione o arquivo "${fileName}" da pasta scripts...`, 'warning');
-        if (filePicker) filePicker.click();
-      }
+  // Ao clicar no botão "Carregar Script", abre o seletor de arquivos
+  if (btnLoadScript) {
+    btnLoadScript.addEventListener('click', () => {
+      if (filePicker) filePicker.click();
     });
   }
 
