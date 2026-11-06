@@ -52,7 +52,35 @@
     <button class="tab-btn" data-tab="tab-matricula">📝 Matrículas em Disciplina</button>
     <button class="tab-btn" data-tab="tab-ministra">👨‍🏫 Ministra</button>
     <button class="tab-btn" data-tab="tab-orientacao">🔗 Orientações</button>
+    <button class="tab-btn" data-tab="tab-scripts">📜 Scripts</button>
   </nav>
+
+  <!-- Scripts UI already includes a hidden file input for local fallback -->
+  <input type="file" id="script-file" accept=".sql,.txt" style="display:none;" />
+  <section class="tab-content" id="tab-scripts">
+    <div class="card">
+      <h2>📄 Executar Script SQL</h2>
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="script-select">Selecione o script</label>
+          <select id="script-select">
+            <option value="DDL.sql">DDL.sql – Definir estrutura</option>
+            <option value="DML.sql">DML.sql – Manipulação</option>
+            <option value="DQL.sql">DQL.sql – Consultas</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label for="script-content">Conteúdo do script (pode editar)</label>
+          <textarea id="script-content" rows="12" placeholder="Carregue ou cole o script aqui…"></textarea>
+        </div>
+        <div class="btn-row">
+          <button id="btn-load-script">📥 Carregar</button>
+          <button id="btn-exec-script" class="btn-danger">▶ Executar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
   <!-- ═══════════════════════════════════════════════════════════
        ABA: PESSOA

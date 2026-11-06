@@ -19,7 +19,7 @@
 function showToast(msg, type = 'info') {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
-  toast.className   = `toast ${type}`;
+  toast.className = `toast ${type}`;
 
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => {
@@ -68,13 +68,13 @@ function renderTable(containerId, rows, idCol = null) {
 
 // ── Mapa de deleção por entidade ───────────────────────────────
 const deleteHandlers = {
-  id_pessoa:      (id) => DB.Pessoa.deletar(id),
-  id_estudante:   (id) => DB.Estudante.deletar(id),
+  id_pessoa: (id) => DB.Pessoa.deletar(id),
+  id_estudante: (id) => DB.Estudante.deletar(id),
   id_funcionario: (id) => DB.Funcionario.deletar(id),
-  id_disciplina:  (id) => DB.Disciplina.deletar(id),
-  id_md:          (id) => DB.MatriculaDisciplina.deletar(id),
-  id_ministra:    (id) => DB.Ministra.deletar(id),
-  id_orientacao:  (id) => DB.Orientacao.deletar(id),
+  id_disciplina: (id) => DB.Disciplina.deletar(id),
+  id_md: (id) => DB.MatriculaDisciplina.deletar(id),
+  id_ministra: (id) => DB.Ministra.deletar(id),
+  id_orientacao: (id) => DB.Orientacao.deletar(id),
 };
 
 /**
@@ -95,23 +95,23 @@ function handleDelete(idCol, id, btn) {
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  const statusEl    = document.getElementById('db-status');
-  const btnInit     = document.getElementById('btn-init-db');
-  const btnClear    = document.getElementById('btn-clear-db');
-  const btnExport   = document.getElementById('btn-export-db');
+  const statusEl = document.getElementById('db-status');
+  const btnInit = document.getElementById('btn-init-db');
+  const btnClear = document.getElementById('btn-clear-db');
+  const btnExport = document.getElementById('btn-export-db');
 
   // ── Carrega sql.js WASM e cria o banco ──────────────────────
   try {
     await DB.init();
     statusEl.textContent = '✅ Banco pronto (memória)';
-    statusEl.className   = 'badge badge-success';
-    btnInit.disabled     = false;
-    btnClear.disabled    = false;
-    btnExport.disabled   = false;
+    statusEl.className = 'badge badge-success';
+    btnInit.disabled = false;
+    btnClear.disabled = false;
+    btnExport.disabled = false;
     showToast('Banco SQLite inicializado com sucesso!', 'success');
   } catch (err) {
     statusEl.textContent = '❌ Erro ao carregar banco';
-    statusEl.className   = 'badge badge-danger';
+    statusEl.className = 'badge badge-danger';
     showToast(`Erro: ${err.message}`, 'error');
     console.error(err);
   }
@@ -143,6 +143,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  /* ── SCRIPTS UI ──────────────────────────────────────────────── */
+  const scriptSelect = document.getElementById('script-select');
+  // const scriptContent = document.getElementById('script-content'); // removed – not needed
+  const btnLoadScript = document.getElementById('btn-load-script');
+  const btnExecScript = document.getElementById('btn-exec-script');
+
+  // Lista estática dos scripts disponíveis (evita fetch de file-list.json)
+  const scriptFiles = ["DDL.sql", "DML.sql", "DQL.sql"];
+
+  // Popula o <select> com a lista estática
+  function populateScriptList() {
+    scriptSelect.innerHTML = '';
+    scriptFiles.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f;
+      scriptSelect.appendChild(opt);
+    });
+    showToast('Lista de scripts carregada.', 'success');
+  }
+
+  // Carrega o conteúdo do arquivo escolhido (local) para a textarea
+  btnLoadScript.addEventListener('click', async () => {
+    const fileName = scriptSelect.value;
+    try {
+      // Tenta fetch (funciona quando a página está servida via HTTP)
+      const resp = await fetch(`scripts/${fileName}`);
+      if (!resp.ok) throw new Error('Arquivo não encontrado');
+      const txt = await resp.text();
+      scriptContent.value = txt;
+      showToast(`Script ${fileName} carregado via fetch.`, 'success');
+    } catch (err) {
+      // Fallback: abrir seletor de arquivos local (necessário por CORS quando aberto via file://)
+      showToast('Não foi possível usar fetch (CORS). Selecione o arquivo local.', 'warning');
+      const fileInput = document.getElementById('script-file');
+      fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return showToast('Nenhum arquivo selecionado.', 'error');
+        const reader = new FileReader();
+        reader.onload = ev => {
+          scriptContent.value = ev.target.result;
+          showToast(`Script ${file.name} carregado via FileReader.`, 'success');
+        };
+        reader.onerror = () => showToast('Erro ao ler o arquivo.', 'error');
+        reader.readAsText(file);
+      };
+      fileInput.click();
+    }
+  });
+
+  // Executa o conteúdo da textarea
+  btnExecScript.addEventListener('click', () => {
+    const sql = scriptContent.value.trim();
+    if (!sql) return showToast('Nenhum script para executar.', 'warning');
+    try {
+      DB.executeScript(sql);
+      showToast('Script executado com sucesso.', 'success');
+    } catch (err) {
+      showToast(`Erro ao executar script: ${err.message}`, 'error');
+    }
+  });
+
+  // Carrega a lista ao iniciar a aplicação
+  populateScriptList();
+
   // ── Navegação por abas ───────────────────────────────────────
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -156,8 +221,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Console SQL ──────────────────────────────────────────────
   document.getElementById('btn-run-sql').addEventListener('click', () => {
-    const sql     = document.getElementById('sql-input').value.trim();
-    const box     = document.getElementById('sql-result-box');
+    const sql = document.getElementById('sql-input').value.trim();
+    const box = document.getElementById('sql-result-box');
     if (!sql) return;
 
     try {
@@ -169,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           : `<p class="msg-success">Query executada — 0 linhas retornadas.</p>`;
       } else {
         const affected = DB.run(sql);
-        box.innerHTML  = `<p class="msg-success">✅ Executado com sucesso. Linhas afetadas: ${affected}</p>`;
+        box.innerHTML = `<p class="msg-success">✅ Executado com sucesso. Linhas afetadas: ${affected}</p>`;
       }
     } catch (err) {
       box.innerHTML = `<p class="msg-error">❌ Erro SQL:\n${err.message}</p>`;
@@ -177,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('btn-clear-console').addEventListener('click', () => {
-    document.getElementById('sql-input').value     = '';
+    document.getElementById('sql-input').value = '';
     document.getElementById('sql-result-box').innerHTML =
       `<p class="placeholder-msg">Os resultados aparecerão aqui.</p>`;
   });
@@ -191,15 +256,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Pessoa.inserir({
-        nome:        document.getElementById('p-nome').value,
-        documento:   document.getElementById('p-documento').value,
-        logradouro:  document.getElementById('p-logradouro').value,
-        numero:      document.getElementById('p-numero').value,
+        nome: document.getElementById('p-nome').value,
+        documento: document.getElementById('p-documento').value,
+        logradouro: document.getElementById('p-logradouro').value,
+        numero: document.getElementById('p-numero').value,
         complemento: document.getElementById('p-complemento').value,
-        bairro:      document.getElementById('p-bairro').value,
-        cidade:      document.getElementById('p-cidade').value,
-        estado:      document.getElementById('p-estado').value,
-        cep:         document.getElementById('p-cep').value,
+        bairro: document.getElementById('p-bairro').value,
+        cidade: document.getElementById('p-cidade').value,
+        estado: document.getElementById('p-estado').value,
+        cep: document.getElementById('p-cep').value,
       });
       e.target.reset();
       showToast('Pessoa inserida com sucesso!', 'success');
@@ -222,9 +287,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Estudante.inserir({
-        id_pessoa:     parseInt(document.getElementById('e-pessoa-id').value),
+        id_pessoa: parseInt(document.getElementById('e-pessoa-id').value),
         num_matricula: document.getElementById('e-matricula').value,
-        curso:         document.getElementById('e-curso').value,
+        curso: document.getElementById('e-curso').value,
       });
       e.target.reset();
       showToast('Estudante inserido com sucesso!', 'success');
@@ -247,10 +312,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Funcionario.inserir({
-        id_pessoa:            parseInt(document.getElementById('f-pessoa-id').value),
-        registro_funcional:   document.getElementById('f-registro').value,
-        data_admissao:        document.getElementById('f-admissao').value,
-        setor:                document.getElementById('f-setor').value,
+        id_pessoa: parseInt(document.getElementById('f-pessoa-id').value),
+        registro_funcional: document.getElementById('f-registro').value,
+        data_admissao: document.getElementById('f-admissao').value,
+        setor: document.getElementById('f-setor').value,
       });
       e.target.reset();
       showToast('Funcionário inserido com sucesso!', 'success');
@@ -273,8 +338,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Disciplina.inserir({
-        codigo:        document.getElementById('d-codigo').value,
-        nome:          document.getElementById('d-nome').value,
+        codigo: document.getElementById('d-codigo').value,
+        nome: document.getElementById('d-nome').value,
         carga_horaria: parseInt(document.getElementById('d-ch').value),
       });
       e.target.reset();
@@ -299,11 +364,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const nota = document.getElementById('m-nota').value;
       DB.MatriculaDisciplina.inserir({
-        id_estudante:  parseInt(document.getElementById('m-estudante-id').value),
+        id_estudante: parseInt(document.getElementById('m-estudante-id').value),
         id_disciplina: parseInt(document.getElementById('m-disciplina-id').value),
-        semestre:      parseInt(document.getElementById('m-semestre').value),
-        ano:           parseInt(document.getElementById('m-ano').value),
-        nota_final:    nota !== '' ? parseFloat(nota) : null,
+        semestre: parseInt(document.getElementById('m-semestre').value),
+        ano: parseInt(document.getElementById('m-ano').value),
+        nota_final: nota !== '' ? parseFloat(nota) : null,
       });
       e.target.reset();
       showToast('Matrícula em disciplina inserida!', 'success');
@@ -327,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       DB.Ministra.inserir({
         id_funcionario: parseInt(document.getElementById('mn-funcionario-id').value),
-        id_disciplina:  parseInt(document.getElementById('mn-disciplina-id').value),
+        id_disciplina: parseInt(document.getElementById('mn-disciplina-id').value),
       });
       e.target.reset();
       showToast('Atribuição inserida!', 'success');
@@ -351,7 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       DB.Orientacao.inserir({
         id_funcionario: parseInt(document.getElementById('o-orientador-id').value),
-        id_estudante:   parseInt(document.getElementById('o-orientado-id').value),
+        id_estudante: parseInt(document.getElementById('o-orientado-id').value),
       });
       e.target.reset();
       showToast('Orientação registrada!', 'success');

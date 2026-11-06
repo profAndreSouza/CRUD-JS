@@ -139,9 +139,8 @@ const DB = (() => {
 
     _db = new _SQL.Database();   // banco em memória
 
-    if (DDL.trim()) {
-      _db.run(DDL);              // executa o DDL da turma
-    }
+    // DDL execution is now manual – the user must load a script
+    // and execute it via the UI (see app.js).
 
     return _db;
   }
@@ -380,6 +379,11 @@ const DB = (() => {
     run,
     query,
     exportDB,
+    executeScript(sql) {
+      if (!_db) throw new Error('Banco não inicializado. Chame DB.init() primeiro.');
+      // sql.js exec executa múltiplas instruções; lançará erro se houver syntax error
+      _db.exec(sql);
+    },
     Pessoa,
     Estudante,
     Funcionario,
