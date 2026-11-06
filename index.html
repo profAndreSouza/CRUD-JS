@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universidade Comunitária — CRUD SQLite</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       CABEÇALHO
+  ════════════════════════════════════════════════════════════ -->
+  <header>
+    <h1>🎓 Universidade Comunitária</h1>
+    <p class="subtitle">Demonstração: JavaScript + SQLite (sql.js)</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STATUS DO BANCO
+  ════════════════════════════════════════════════════════════ -->
+  <section id="status-bar">
+    <span id="db-status" class="badge badge-warning">⏳ Carregando banco...</span>
+    <button id="btn-init-db" disabled>🗄️ Inicializar Banco</button>
+    <button id="btn-clear-db" class="btn-danger" disabled>🗑️ Limpar Banco</button>
+    <button id="btn-export-db" disabled>💾 Exportar .db</button>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       CONSOLE SQL
+  ════════════════════════════════════════════════════════════ -->
+  <section class="card" id="sql-console">
+    <h2>🖥️ Console SQL</h2>
+    <textarea id="sql-input" placeholder="Digite ou cole um comando SQL aqui...&#10;Exemplo: SELECT * FROM Pessoa;"></textarea>
+    <div class="btn-row">
+      <button id="btn-run-sql">▶ Executar SQL</button>
+      <button id="btn-clear-console" class="btn-secondary">✖ Limpar</button>
+    </div>
+    <div id="sql-result-box">
+      <p class="placeholder-msg">Os resultados aparecerão aqui.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NAVEGAÇÃO POR ABAS
+  ════════════════════════════════════════════════════════════ -->
+  <nav id="tab-nav">
+    <button class="tab-btn active" data-tab="tab-pessoa">👤 Pessoas</button>
+    <button class="tab-btn" data-tab="tab-estudante">🎒 Estudantes</button>
+    <button class="tab-btn" data-tab="tab-funcionario">💼 Funcionários</button>
+    <button class="tab-btn" data-tab="tab-disciplina">📚 Disciplinas</button>
+    <button class="tab-btn" data-tab="tab-matricula">📝 Matrículas em Disciplina</button>
+    <button class="tab-btn" data-tab="tab-ministra">👨‍🏫 Ministra</button>
+    <button class="tab-btn" data-tab="tab-orientacao">🔗 Orientações</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: PESSOA
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content active" id="tab-pessoa">
+    <div class="card">
+      <h2>👤 Cadastrar Pessoa</h2>
+      <form id="form-pessoa">
+        <fieldset>
+          <legend>Dados Pessoais</legend>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="p-nome">Nome *</label>
+              <input type="text" id="p-nome" placeholder="Nome completo" required />
+            </div>
+            <div class="form-group">
+              <label for="p-documento">Documento *</label>
+              <input type="text" id="p-documento" placeholder="CPF ou RG" required />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Endereço</legend>
+          <div class="form-grid">
+            <div class="form-group span-2">
+              <label for="p-logradouro">Logradouro</label>
+              <input type="text" id="p-logradouro" placeholder="Rua, Av., etc." />
+            </div>
+            <div class="form-group">
+              <label for="p-numero">Número</label>
+              <input type="text" id="p-numero" placeholder="Nº" />
+            </div>
+            <div class="form-group">
+              <label for="p-complemento">Complemento</label>
+              <input type="text" id="p-complemento" placeholder="Apto, Bloco..." />
+            </div>
+            <div class="form-group">
+              <label for="p-bairro">Bairro</label>
+              <input type="text" id="p-bairro" placeholder="Bairro" />
+            </div>
+            <div class="form-group">
+              <label for="p-cidade">Cidade</label>
+              <input type="text" id="p-cidade" placeholder="Cidade" />
+            </div>
+            <div class="form-group">
+              <label for="p-estado">Estado</label>
+              <input type="text" id="p-estado" maxlength="2" placeholder="UF" />
+            </div>
+            <div class="form-group">
+              <label for="p-cep">CEP</label>
+              <input type="text" id="p-cep" placeholder="00000-000" />
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="btn-row">
+          <button type="submit">➕ Inserir Pessoa</button>
+          <button type="button" id="btn-list-pessoa" class="btn-secondary">🔄 Listar Todas</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Lista de Pessoas</h2>
+      <div id="table-pessoa" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: ESTUDANTE
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-estudante">
+    <div class="card">
+      <h2>🎒 Cadastrar Estudante</h2>
+      <form id="form-estudante">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="e-pessoa-id">ID da Pessoa *</label>
+            <input type="number" id="e-pessoa-id" placeholder="ID já cadastrado" required />
+          </div>
+          <div class="form-group">
+            <label for="e-matricula">Nº Matrícula *</label>
+            <input type="text" id="e-matricula" placeholder="Ex: 2024001" required />
+          </div>
+          <div class="form-group span-2">
+            <label for="e-curso">Curso *</label>
+            <input type="text" id="e-curso" placeholder="Ex: Ciência da Computação" required />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Inserir Estudante</button>
+          <button type="button" id="btn-list-estudante" class="btn-secondary">🔄 Listar Todos</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Lista de Estudantes</h2>
+      <div id="table-estudante" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todos" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: FUNCIONÁRIO
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-funcionario">
+    <div class="card">
+      <h2>💼 Cadastrar Funcionário</h2>
+      <form id="form-funcionario">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-pessoa-id">ID da Pessoa *</label>
+            <input type="number" id="f-pessoa-id" placeholder="ID já cadastrado" required />
+          </div>
+          <div class="form-group">
+            <label for="f-registro">Registro Funcional *</label>
+            <input type="text" id="f-registro" placeholder="Ex: RF2024001" required />
+          </div>
+          <div class="form-group">
+            <label for="f-admissao">Data de Admissão *</label>
+            <input type="date" id="f-admissao" required />
+          </div>
+          <div class="form-group">
+            <label for="f-setor">Setor de Lotação *</label>
+            <input type="text" id="f-setor" placeholder="Ex: Departamento de TI" required />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Inserir Funcionário</button>
+          <button type="button" id="btn-list-funcionario" class="btn-secondary">🔄 Listar Todos</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Lista de Funcionários</h2>
+      <div id="table-funcionario" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todos" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: DISCIPLINA
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-disciplina">
+    <div class="card">
+      <h2>📚 Cadastrar Disciplina</h2>
+      <form id="form-disciplina">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="d-codigo">Código *</label>
+            <input type="text" id="d-codigo" placeholder="Ex: CC001" required />
+          </div>
+          <div class="form-group span-2">
+            <label for="d-nome">Nome *</label>
+            <input type="text" id="d-nome" placeholder="Ex: Banco de Dados" required />
+          </div>
+          <div class="form-group">
+            <label for="d-ch">Carga Horária (h) *</label>
+            <input type="number" id="d-ch" placeholder="Ex: 60" min="1" required />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Inserir Disciplina</button>
+          <button type="button" id="btn-list-disciplina" class="btn-secondary">🔄 Listar Todas</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Lista de Disciplinas</h2>
+      <div id="table-disciplina" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: MATRÍCULA EM DISCIPLINA
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-matricula">
+    <div class="card">
+      <h2>📝 Matricular Estudante em Disciplina</h2>
+      <form id="form-matricula">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="m-estudante-id">ID do Estudante *</label>
+            <input type="number" id="m-estudante-id" placeholder="ID do estudante" required />
+          </div>
+          <div class="form-group">
+            <label for="m-disciplina-id">ID da Disciplina *</label>
+            <input type="number" id="m-disciplina-id" placeholder="ID da disciplina" required />
+          </div>
+          <div class="form-group">
+            <label for="m-semestre">Semestre *</label>
+            <input type="number" id="m-semestre" placeholder="1 ou 2" min="1" max="2" required />
+          </div>
+          <div class="form-group">
+            <label for="m-ano">Ano *</label>
+            <input type="number" id="m-ano" placeholder="Ex: 2024" required />
+          </div>
+          <div class="form-group">
+            <label for="m-nota">Nota Final</label>
+            <input type="number" id="m-nota" placeholder="0.0 – 10.0" step="0.1" min="0" max="10" />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Matricular</button>
+          <button type="button" id="btn-list-matricula" class="btn-secondary">🔄 Listar Todas</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Matrículas em Disciplinas</h2>
+      <div id="table-matricula" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: MINISTRA
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-ministra">
+    <div class="card">
+      <h2>👨‍🏫 Atribuir Disciplina a Funcionário</h2>
+      <form id="form-ministra">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="mn-funcionario-id">ID do Funcionário *</label>
+            <input type="number" id="mn-funcionario-id" placeholder="ID do funcionário" required />
+          </div>
+          <div class="form-group">
+            <label for="mn-disciplina-id">ID da Disciplina *</label>
+            <input type="number" id="mn-disciplina-id" placeholder="ID da disciplina" required />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Atribuir</button>
+          <button type="button" id="btn-list-ministra" class="btn-secondary">🔄 Listar Todas</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Disciplinas por Funcionário</h2>
+      <div id="table-ministra" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ABA: ORIENTAÇÃO
+  ════════════════════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-orientacao">
+    <div class="card">
+      <h2>🔗 Registrar Orientação</h2>
+      <form id="form-orientacao">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="o-orientador-id">ID do Funcionário (Orientador) *</label>
+            <input type="number" id="o-orientador-id" placeholder="ID do funcionário" required />
+          </div>
+          <div class="form-group">
+            <label for="o-orientado-id">ID do Estudante (Orientado) *</label>
+            <input type="number" id="o-orientado-id" placeholder="ID do estudante" required />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">➕ Registrar</button>
+          <button type="button" id="btn-list-orientacao" class="btn-secondary">🔄 Listar Todas</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>📋 Orientações</h2>
+      <div id="table-orientacao" class="table-wrapper">
+        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOAST DE NOTIFICAÇÃO
+  ════════════════════════════════════════════════════════════ -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCRIPTS
+       sql.js via CDN — carrega o engine WASM do SQLite no browser
+  ════════════════════════════════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
+
