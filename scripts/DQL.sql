@@ -9,7 +9,7 @@
 
 
 -- ── 1. Listar todas as pessoas (nome + documento) ─────────────
-
+SELECT * FROM pessoas;
 
 -- ── 2. Listar todos os estudantes com nome e curso ────────────
 

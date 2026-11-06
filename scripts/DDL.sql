@@ -23,13 +23,34 @@
 
 
 -- ── 1. Tabela PESSOA ──────────────────────────────────────────
+CREATE TABLE pessoa (
+    id_pessoa INTEGER PRIMARY KEY AUTOINCREMENT,    
+    nome TEXT NOT NULL,
+    documento TEXT NOT NULL UNIQUE,
+    logradouro TEXT,
+    numero TEXT,
+    complemento TEXT,
+    bairro TEXT,
+    cidade TEXT,
+    estado TEXT,
+    cep TEXT
+);
 
+-- ── 2. Tabela FUNCIONARIO (especialização de Pessoa) ──────────
+CREATE TABLE funcionario (
+    id_pessoa INTEGER PRIMARY KEY REFERENCES pessoa(id_pessoa),
+    registro_funcional TEXT NOT NULL UNIQUE,
+    setor TEXT NOT NULL,
+    data_admissao TEXT
+);
 
--- ── 2. Tabela ESTUDANTE (especialização de Pessoa) ────────────
-
-
--- ── 3. Tabela FUNCIONARIO (especialização de Pessoa) ──────────
-
+-- ── 3. Tabela ESTUDANTE (especialização de Pessoa) ────────────
+CREATE TABLE estudante (
+    id_pessoa INTEGER PRIMARY KEY REFERENCES pessoa(id_pessoa),
+    id_orientador INTEGER REFERENCES funcionario(id_pessoa),
+    num_matricula TEXT NOT NULL UNIQUE,
+    curso TEXT NOT NULL
+);
 
 -- ── 4. Tabela DISCIPLINA ──────────────────────────────────────
 
