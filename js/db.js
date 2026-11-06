@@ -31,9 +31,100 @@ const DB = (() => {
   // Os scripts abaixo serão construídos COM A TURMA durante a aula.
   // Deixe os blocos em branco e preencha progressivamente.
   // ─────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────
+  // DDL completo do modelo "Universidade Comunitária"
+  //
+  // 💡 DIDÁTICA: durante a aula, apague o conteúdo das strings e
+  //    reconstrua o SQL junto com os alunos, linha a linha.
+  //    O arquivo scripts/DDL.sql está em branco para esse fim.
+  // ──────────────────────────────────────────────────────────────
   const DDL = `
 
-    /* ── Colado aqui o script DDL construído em aula ── */
+    PRAGMA foreign_keys = ON;
+
+    -- ── 1. PESSOA (entidade-raiz) ──────────────────────────────
+    --    Endereço composto: logradouro, numero, complemento,
+    --                       bairro, cidade, estado, cep
+    CREATE TABLE IF NOT EXISTS Pessoa (
+      id_pessoa    INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome         TEXT    NOT NULL,
+      documento    TEXT    NOT NULL UNIQUE,
+      logradouro   TEXT,
+      numero       TEXT,
+      complemento  TEXT,
+      bairro       TEXT,
+      cidade       TEXT,
+      estado       TEXT CHECK (LENGTH(estado) <= 2),
+      cep          TEXT
+    );
+
+    -- ── 2. ESTUDANTE (especialização de Pessoa) ────────────────
+    --    Especialização TOTAL e SOBREPOSTA:
+    --    uma Pessoa pode ser Estudante E Funcionário ao mesmo tempo
+    CREATE TABLE IF NOT EXISTS Estudante (
+      id_estudante  INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_pessoa     INTEGER NOT NULL REFERENCES Pessoa(id_pessoa)
+                            ON DELETE CASCADE,
+      num_matricula TEXT    NOT NULL UNIQUE,
+      curso         TEXT    NOT NULL
+    );
+
+    -- ── 3. FUNCIONARIO (especialização de Pessoa) ──────────────
+    CREATE TABLE IF NOT EXISTS Funcionario (
+      id_funcionario     INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_pessoa          INTEGER NOT NULL REFERENCES Pessoa(id_pessoa)
+                                 ON DELETE CASCADE,
+      registro_funcional TEXT    NOT NULL UNIQUE,
+      data_admissao      TEXT    NOT NULL,  -- formato YYYY-MM-DD
+      setor              TEXT    NOT NULL
+    );
+
+    -- ── 4. DISCIPLINA ──────────────────────────────────────────
+    CREATE TABLE IF NOT EXISTS Disciplina (
+      id_disciplina INTEGER PRIMARY KEY AUTOINCREMENT,
+      codigo        TEXT    NOT NULL UNIQUE,
+      nome          TEXT    NOT NULL,
+      carga_horaria INTEGER NOT NULL CHECK (carga_horaria > 0)
+    );
+
+    -- ── 5. MATRICULA_DISCIPLINA (N:M com atributos) ────────────
+    --    Estudante cursa Disciplina;
+    --    atributos: semestre, ano, nota_final
+    CREATE TABLE IF NOT EXISTS Matricula_Disciplina (
+      id_md         INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_estudante  INTEGER NOT NULL REFERENCES Estudante(id_estudante)
+                            ON DELETE CASCADE,
+      id_disciplina INTEGER NOT NULL REFERENCES Disciplina(id_disciplina)
+                            ON DELETE CASCADE,
+      semestre      INTEGER NOT NULL CHECK (semestre IN (1,2)),
+      ano           INTEGER NOT NULL,
+      nota_final    REAL    CHECK (nota_final BETWEEN 0 AND 10),
+      UNIQUE (id_estudante, id_disciplina, semestre, ano)
+    );
+
+    -- ── 6. MINISTRA (N:M Funcionário × Disciplina) ─────────────
+    --    Um funcionário pode ministrar várias disciplinas;
+    --    uma disciplina pode ser ministrada por vários funcionários
+    CREATE TABLE IF NOT EXISTS Ministra (
+      id_ministra    INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_funcionario INTEGER NOT NULL REFERENCES Funcionario(id_funcionario)
+                             ON DELETE CASCADE,
+      id_disciplina  INTEGER NOT NULL REFERENCES Disciplina(id_disciplina)
+                             ON DELETE CASCADE,
+      UNIQUE (id_funcionario, id_disciplina)
+    );
+
+    -- ── 7. ORIENTACAO (autorrelacionamento via Funcionário) ─────
+    --    Papel ORIENTADOR → Funcionário
+    --    Papel ORIENTADO  → Estudante  (máx. 1 orientador por estudante)
+    CREATE TABLE IF NOT EXISTS Orientacao (
+      id_orientacao  INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_funcionario INTEGER NOT NULL REFERENCES Funcionario(id_funcionario)
+                             ON DELETE CASCADE,
+      id_estudante   INTEGER NOT NULL REFERENCES Estudante(id_estudante)
+                             ON DELETE CASCADE,
+      UNIQUE (id_estudante)   -- cada estudante tem no máximo 1 orientador
+    );
 
   `;
 
