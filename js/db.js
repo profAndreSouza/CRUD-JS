@@ -381,8 +381,8 @@ const DB = (() => {
     exportDB,
     executeScript(sql) {
       if (!_db) throw new Error('Banco não inicializado. Chame DB.init() primeiro.');
-      // sql.js exec executa múltiplas instruções; lançará erro se houver syntax error
-      _db.exec(sql);
+      // sql.js exec executa múltiplas instruções e retorna resultados se houver SELECT
+      return _db.exec(sql);
     },
     Pessoa,
     Estudante,

@@ -143,70 +143,99 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  /* ── SCRIPTS UI ──────────────────────────────────────────────── */
-  const scriptSelect = document.getElementById('script-select');
-  // const scriptContent = document.getElementById('script-content'); // removed – not needed
-  const btnLoadScript = document.getElementById('btn-load-script');
+  /* ── EXECUÇÃO DE SCRIPTS (.sql) ──────────────────────────────── */
+  const scriptSelect  = document.getElementById('script-select');
   const btnExecScript = document.getElementById('btn-exec-script');
+  const filePicker    = document.getElementById('script-file-picker');
+  const boxResult     = document.getElementById('sql-result-box');
+  const sqlInput      = document.getElementById('sql-input');
 
-  // Lista estática dos scripts disponíveis (evita fetch de file-list.json)
-  const scriptFiles = ["DDL.sql", "DML.sql", "DQL.sql"];
+  /**
+   * Executa a string SQL no banco e renderiza o feedback no console.
+   */
+  function executarConteudoSQL(sql, nomeArquivo) {
+    if (!sql || !sql.trim()) {
+      showToast(`O arquivo ${nomeArquivo} está vazio.`, 'warning');
+      boxResult.innerHTML = `<p class="placeholder-msg">⚠️ O arquivo ${nomeArquivo} não possui comandos SQL preenchidos.</p>`;
+      return;
+    }
 
-  // Popula o <select> com a lista estática
-  function populateScriptList() {
-    scriptSelect.innerHTML = '';
-    scriptFiles.forEach(f => {
-      const opt = document.createElement('option');
-      opt.value = f;
-      opt.textContent = f;
-      scriptSelect.appendChild(opt);
-    });
-    showToast('Lista de scripts carregada.', 'success');
+    try {
+      // Coloca no textarea para visualização do professor e alunos
+      if (sqlInput) sqlInput.value = sql;
+
+      // Executa múltiplas instruções no SQLite
+      const results = DB.executeScript(sql);
+
+      // Se houver resultados de SELECT (como em DQL.sql)
+      if (results && results.length > 0) {
+        let htmlResult = '';
+        results.forEach((res, idx) => {
+          const rows = res.values.map(valArray => {
+            const rowObj = {};
+            res.columns.forEach((colName, cIdx) => {
+              rowObj[colName] = valArray[cIdx];
+            });
+            return rowObj;
+          });
+          htmlResult += `<h4 style="color:#38bdf8;margin:10px 0 6px 0;">Resultado ${idx + 1} (${rows.length} registros):</h4>`;
+          htmlResult += buildTable(rows);
+        });
+        boxResult.innerHTML = htmlResult;
+      } else {
+        boxResult.innerHTML = `<p class="msg-success">✅ Script <strong>${nomeArquivo}</strong> executado com sucesso no banco SQLite!</p>`;
+      }
+
+      showToast(`Script ${nomeArquivo} executado com sucesso!`, 'success');
+    } catch (err) {
+      boxResult.innerHTML = `<p class="msg-error">❌ Erro ao executar ${nomeArquivo}:\n${err.message}</p>`;
+      showToast(`Erro no script: ${err.message}`, 'error');
+      console.error(err);
+    }
   }
 
-  // Carrega o conteúdo do arquivo escolhido (local) para a textarea
-  btnLoadScript.addEventListener('click', async () => {
-    const fileName = scriptSelect.value;
-    try {
-      // Tenta fetch (funciona quando a página está servida via HTTP)
-      const resp = await fetch(`scripts/${fileName}`);
-      if (!resp.ok) throw new Error('Arquivo não encontrado');
-      const txt = await resp.text();
-      scriptContent.value = txt;
-      showToast(`Script ${fileName} carregado via fetch.`, 'success');
-    } catch (err) {
-      // Fallback: abrir seletor de arquivos local (necessário por CORS quando aberto via file://)
-      showToast('Não foi possível usar fetch (CORS). Selecione o arquivo local.', 'warning');
-      const fileInput = document.getElementById('script-file');
-      fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return showToast('Nenhum arquivo selecionado.', 'error');
-        const reader = new FileReader();
-        reader.onload = ev => {
-          scriptContent.value = ev.target.result;
-          showToast(`Script ${file.name} carregado via FileReader.`, 'success');
-        };
-        reader.onerror = () => showToast('Erro ao ler o arquivo.', 'error');
-        reader.readAsText(file);
+  // Listener para o input de arquivo (fallback quando aberto via file://)
+  if (filePicker) {
+    filePicker.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        executarConteudoSQL(ev.target.result, file.name);
       };
-      fileInput.click();
-    }
-  });
+      reader.onerror = () => showToast('Erro ao ler o arquivo selecionado.', 'error');
+      reader.readAsText(file);
+      // Limpa o valor para permitir selecionar o mesmo arquivo novamente após editá-lo
+      filePicker.value = '';
+    });
+  }
 
-  // Executa o conteúdo da textarea
-  btnExecScript.addEventListener('click', () => {
-    const sql = scriptContent.value.trim();
-    if (!sql) return showToast('Nenhum script para executar.', 'warning');
-    try {
-      DB.executeScript(sql);
-      showToast('Script executado com sucesso.', 'success');
-    } catch (err) {
-      showToast(`Erro ao executar script: ${err.message}`, 'error');
-    }
-  });
+  // Executa o script escolhido no select
+  if (btnExecScript) {
+    btnExecScript.addEventListener('click', async () => {
+      const fileName = scriptSelect ? scriptSelect.value : 'DDL.sql';
 
-  // Carrega a lista ao iniciar a aplicação
-  populateScriptList();
+      // Se estiver em file:///, browsers bloqueiam fetch por política de CORS.
+      // Nesse caso, abre direto o seletor para o usuário escolher o arquivo da pasta scripts.
+      if (window.location.protocol === 'file:') {
+        showToast(`📂 Selecione o arquivo "${fileName}" na pasta scripts...`, 'info');
+        if (filePicker) filePicker.click();
+        return;
+      }
+
+      // Se estiver em HTTP/HTTPS (ex: Live Server do VS Code)
+      try {
+        const resp = await fetch(`scripts/${fileName}?_t=${Date.now()}`);
+        if (!resp.ok) throw new Error(`Status ${resp.status} - Arquivo não encontrado`);
+        const txt = await resp.text();
+        executarConteudoSQL(txt, fileName);
+      } catch (err) {
+        // Se o fetch falhar, tenta fallback via seletor de arquivo local
+        showToast(`Fetch bloqueado. Selecione o arquivo "${fileName}" da pasta scripts...`, 'warning');
+        if (filePicker) filePicker.click();
+      }
+    });
+  }
 
   // ── Navegação por abas ───────────────────────────────────────
   document.querySelectorAll('.tab-btn').forEach(btn => {

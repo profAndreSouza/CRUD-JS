@@ -60,49 +60,18 @@ Browser
 
 ## ✏️ Onde Adicionar os Scripts da Aula
 
-### 1 — DDL (CREATE TABLE)
+### Como Executar os Scripts da Aula
 
-**Arquivo de rascunho:** [`scripts/DDL.sql`](scripts/DDL.sql)  
-**Onde colar no projeto:** [`js/db.js`](js/db.js), dentro da constante `DDL` (linha ~34)
+Ao lado do **Console SQL**, você encontrará o seletor **Arquivo de Script** com os arquivos da pasta `scripts/` (`DDL.sql`, `DML.sql`, `DQL.sql`) e o botão **▶ Executar Script**.
 
-```js
-// js/db.js — linha ~34
-const DDL = `
+- **Execução Automática (servidor local / Live Server):**  
+  Se você abrir o projeto com um servidor local (ex: extensão **Live Server** do VS Code ou `npx serve`), ao clicar em **▶ Executar Script**, o script selecionado é lido e executado imediatamente.
 
-  -- Cole aqui o CREATE TABLE construído em aula
-  CREATE TABLE IF NOT EXISTS Pessoa ( ... );
-  CREATE TABLE IF NOT EXISTS Estudante ( ... );
-  -- etc.
+- **Execução via Arquivo Local (`file:///` - Duplo clique no HTML):**  
+  Como os navegadores bloqueiam requisições de rede diretas (`fetch`) em arquivos locais por política de segurança (CORS), ao clicar em **▶ Executar Script**, abrirá automaticamente a janela do Windows para você selecionar o arquivo `.sql` que acabou de salvar na pasta `scripts`. O script é lido e executado instantaneamente!
 
-`;
-```
-
-> O DDL é executado automaticamente quando a página carrega (`DB.init()`).
-
----
-
-### 2 — DML (INSERT · UPDATE · DELETE)
-
-**Arquivo de rascunho:** [`scripts/DML.sql`](scripts/DML.sql)  
-**Onde executar:** no **Console SQL** da própria interface (campo de texto azul escuro no topo da página)
-
-**Passos:**
-1. Escreva o comando DML no arquivo `scripts/DML.sql` junto com os alunos
-2. Copie o trecho e cole no **Console SQL** na tela
-3. Clique em **▶ Executar SQL**
-4. O resultado (linhas afetadas) aparece abaixo do console
-
----
-
-### 3 — DQL (SELECT)
-
-**Arquivo de rascunho:** [`scripts/DQL.sql`](scripts/DQL.sql)  
-**Onde executar:** no **Console SQL** da própria interface
-
-**Passos:**
-1. Escreva a consulta no arquivo `scripts/DQL.sql` junto com os alunos
-2. Cole no **Console SQL** e clique em **▶ Executar SQL**
-3. O resultado é renderizado como uma **tabela interativa** na tela
+- **Execução Manual:**  
+  Você também pode simplesmente copiar o código SQL do arquivo no VS Code, colar no campo do **Console SQL** e clicar em **▶ Executar SQL**.
 
 ---
 

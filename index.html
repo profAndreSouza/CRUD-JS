@@ -35,19 +35,22 @@
     <h2>🖥️ Console SQL</h2>
     <textarea id="sql-input"
       placeholder="Digite ou cole um comando SQL aqui...&#10;Exemplo: SELECT * FROM Pessoa;"></textarea>
-    <div class="btn-row">
-      <button id="btn-run-sql">▶ Executar SQL</button>
-      <button id="btn-clear-console" class="btn-secondary">✖ Limpar</button>
+    <div class="btn-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button id="btn-run-sql">▶ Executar SQL</button>
+        <button id="btn-clear-console" class="btn-secondary">✖ Limpar</button>
+      </div>
 
-      <div class="form-grid">
-        <select id="script-select">
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <label for="script-select" style="font-weight: 600; font-size: 0.82rem; color: var(--text-muted);">Arquivo de Script:</label>
+        <select id="script-select" style="padding: 6px 10px; font-weight: 500;">
           <option value="DDL.sql">DDL.sql – Definir estrutura</option>
           <option value="DML.sql">DML.sql – Manipulação</option>
           <option value="DQL.sql">DQL.sql – Consultas</option>
         </select>
+        <button id="btn-exec-script" class="btn-danger">▶ Executar Script</button>
+        <input type="file" id="script-file-picker" accept=".sql" style="display: none;" />
       </div>
-      <button id="btn-exec-script" class="btn-danger">▶ Executar Script</button>
-
     </div>
 
     <div id="sql-result-box">
