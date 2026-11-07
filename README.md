@@ -76,37 +76,39 @@ Ao lado do **Console SQL**, há o botão **📂 Carregar Script**:
 ## 🗂️ Modelo de Dados
 
 ```
-Pessoa (id_pessoa, nome, documento,
+PESSOA (codigo, documento, nome,
         logradouro, numero, complemento, bairro, cidade, estado, cep)
    │
-   ├──▶ Estudante (id_estudante, id_pessoa, num_matricula, curso)
-   │         │
-   │         ├──▶ Matricula_Disciplina (semestre, ano, nota_final)
-   │         │         └──▶ Disciplina (id_disciplina, codigo, nome, carga_horaria)
-   │         │
-   │         └──▶ Orientacao (orientado)
-   │
-   └──▶ Funcionario (id_funcionario, id_pessoa, registro_funcional,
-   │                 data_admissao, setor)
-         │
-         ├──▶ Ministra ──▶ Disciplina
-         │
-         └──▶ Orientacao (orientador)
+   ├──▶ ESTUDANTE (codigo, matricula, curso, id_orientador ──┐)
+   │         │                                               │
+   │         ├──▶ MATRICULA_DISCIPLINA                       │
+   │         │    (id_estudante, disciplina_codigo,          │
+   │         │     semestre, ano, nota_final)                │
+   │         │         └──▶ DISCIPLINA (codigo, nome,        │
+   │         │                         carga_horaria)        │
+   │         │                                               │
+   └──▶ FUNCIONARIO (codigo, registro_funcional,             │
+         │           data_admissao, setor_lotacao)           │
+         │                                                   │
+         ├──▶ MINISTRA (id_funcionario, disciplina_codigo)   │
+         │         └──▶ DISCIPLINA                           │
+         │                                                   │
+         └───────────────────────────────────────────────────┘
 ```
 
-> **Especialização total e sobreposta:** uma mesma `Pessoa` pode ser `Estudante` **e** `Funcionário` ao mesmo tempo.
+> **Especialização total e sobreposta:** uma mesma `PESSOA` pode ser `ESTUDANTE` **e** `FUNCIONARIO` ao mesmo tempo (compartilhando o mesmo `codigo`).  
+> **Autorrelacionamento de Orientação:** modelado diretamente pelo campo `ESTUDANTE.id_orientador` apontando para `FUNCIONARIO.codigo` (0..1 : 0..N).
 
 ### Tabelas e Relacionamentos
 
-| Tabela | Tipo | Descrição |
-|---|---|---|
-| `Pessoa` | Entidade-raiz | Dados pessoais + endereço composto |
-| `Estudante` | Especialização | Subconjunto de Pessoa; matrícula e curso |
-| `Funcionario` | Especialização | Subconjunto de Pessoa; registro e setor |
-| `Disciplina` | Entidade | Código, nome e carga horária |
-| `Matricula_Disciplina` | N:M com atributos | Estudante ↔ Disciplina (semestre, ano, nota) |
-| `Ministra` | N:M | Funcionário ↔ Disciplina |
-| `Orientacao` | Autorrelacionamento | Funcionário orienta Estudante (máx. 1 por estudante) |
+| Tabela | Tipo | Chave Primária | Descrição |
+|---|---|---|---|
+| `PESSOA` | Entidade-raiz (Superclasse) | `codigo` | Dados pessoais e endereço composto |
+| `ESTUDANTE` | Subclasse de Pessoa | `codigo` (PK/FK) | Matrícula, curso e FK `id_orientador` para Funcionário |
+| `FUNCIONARIO` | Subclasse de Pessoa | `codigo` (PK/FK) | Registro funcional, data de admissão e setor de lotação |
+| `DISCIPLINA` | Entidade | `codigo` (PK texto) | Código textual, nome e carga horária |
+| `MATRICULA_DISCIPLINA` | N:M (com histórico) | `(id_estudante, disciplina_codigo, semestre, ano)` | Estudante ↔ Disciplina com notas e semestres |
+| `MINISTRA` | N:M | `(id_funcionario, disciplina_codigo)` | Funcionário ↔ Disciplina |
 
 ---
 

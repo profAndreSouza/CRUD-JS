@@ -76,46 +76,50 @@
           <legend>Dados Pessoais</legend>
           <div class="form-grid">
             <div class="form-group">
-              <label for="p-nome">Nome *</label>
-              <input type="text" id="p-nome" placeholder="Nome completo" required />
+              <label for="p-codigo">Código (opcional)</label>
+              <input type="number" id="p-codigo" placeholder="Auto ou informe nº" />
             </div>
             <div class="form-group">
               <label for="p-documento">Documento *</label>
               <input type="text" id="p-documento" placeholder="CPF ou RG" required />
             </div>
+            <div class="form-group span-2">
+              <label for="p-nome">Nome Completo *</label>
+              <input type="text" id="p-nome" placeholder="Nome completo" required />
+            </div>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Endereço</legend>
+          <legend>Endereço Composto</legend>
           <div class="form-grid">
             <div class="form-group span-2">
-              <label for="p-logradouro">Logradouro</label>
-              <input type="text" id="p-logradouro" placeholder="Rua, Av., etc." />
+              <label for="p-logradouro">Logradouro *</label>
+              <input type="text" id="p-logradouro" placeholder="Rua, Av., etc." required />
             </div>
             <div class="form-group">
-              <label for="p-numero">Número</label>
-              <input type="text" id="p-numero" placeholder="Nº" />
+              <label for="p-numero">Número *</label>
+              <input type="text" id="p-numero" placeholder="Nº" required />
             </div>
             <div class="form-group">
               <label for="p-complemento">Complemento</label>
               <input type="text" id="p-complemento" placeholder="Apto, Bloco..." />
             </div>
             <div class="form-group">
-              <label for="p-bairro">Bairro</label>
-              <input type="text" id="p-bairro" placeholder="Bairro" />
+              <label for="p-bairro">Bairro *</label>
+              <input type="text" id="p-bairro" placeholder="Bairro" required />
             </div>
             <div class="form-group">
-              <label for="p-cidade">Cidade</label>
-              <input type="text" id="p-cidade" placeholder="Cidade" />
+              <label for="p-cidade">Cidade *</label>
+              <input type="text" id="p-cidade" placeholder="Cidade" required />
             </div>
             <div class="form-group">
-              <label for="p-estado">Estado</label>
-              <input type="text" id="p-estado" maxlength="2" placeholder="UF" />
+              <label for="p-estado">Estado (UF) *</label>
+              <input type="text" id="p-estado" maxlength="2" placeholder="SC, SP, etc." required />
             </div>
             <div class="form-group">
-              <label for="p-cep">CEP</label>
-              <input type="text" id="p-cep" placeholder="00000-000" />
+              <label for="p-cep">CEP *</label>
+              <input type="text" id="p-cep" placeholder="00000-000" required />
             </div>
           </div>
         </fieldset>
@@ -144,16 +148,20 @@
       <form id="form-estudante">
         <div class="form-grid">
           <div class="form-group">
-            <label for="e-pessoa-id">ID da Pessoa *</label>
-            <input type="number" id="e-pessoa-id" placeholder="ID já cadastrado" required />
+            <label for="e-codigo">Código da Pessoa (PK/FK) *</label>
+            <input type="number" id="e-codigo" placeholder="Código cadastrado em Pessoa" required />
           </div>
           <div class="form-group">
-            <label for="e-matricula">Nº Matrícula *</label>
-            <input type="text" id="e-matricula" placeholder="Ex: 2024001" required />
+            <label for="e-matricula">Nº Matrícula (UQ) *</label>
+            <input type="text" id="e-matricula" placeholder="Ex: MAT-202401" required />
           </div>
-          <div class="form-group span-2">
+          <div class="form-group">
             <label for="e-curso">Curso *</label>
             <input type="text" id="e-curso" placeholder="Ex: Ciência da Computação" required />
+          </div>
+          <div class="form-group">
+            <label for="e-orientador">Cód. Orientador (Funcionário)</label>
+            <input type="number" id="e-orientador" placeholder="Código do docente (opcional)" />
           </div>
         </div>
         <div class="btn-row">
@@ -180,12 +188,12 @@
       <form id="form-funcionario">
         <div class="form-grid">
           <div class="form-group">
-            <label for="f-pessoa-id">ID da Pessoa *</label>
-            <input type="number" id="f-pessoa-id" placeholder="ID já cadastrado" required />
+            <label for="f-codigo">Código da Pessoa (PK/FK) *</label>
+            <input type="number" id="f-codigo" placeholder="Código cadastrado em Pessoa" required />
           </div>
           <div class="form-group">
-            <label for="f-registro">Registro Funcional *</label>
-            <input type="text" id="f-registro" placeholder="Ex: RF2024001" required />
+            <label for="f-registro">Registro Funcional (UQ) *</label>
+            <input type="text" id="f-registro" placeholder="Ex: RF-1001" required />
           </div>
           <div class="form-group">
             <label for="f-admissao">Data de Admissão *</label>
@@ -193,7 +201,7 @@
           </div>
           <div class="form-group">
             <label for="f-setor">Setor de Lotação *</label>
-            <input type="text" id="f-setor" placeholder="Ex: Departamento de TI" required />
+            <input type="text" id="f-setor" placeholder="Ex: Departamento de Computação" required />
           </div>
         </div>
         <div class="btn-row">
@@ -220,12 +228,12 @@
       <form id="form-disciplina">
         <div class="form-grid">
           <div class="form-group">
-            <label for="d-codigo">Código *</label>
+            <label for="d-codigo">Código da Disciplina (PK) *</label>
             <input type="text" id="d-codigo" placeholder="Ex: CC001" required />
           </div>
           <div class="form-group span-2">
-            <label for="d-nome">Nome *</label>
-            <input type="text" id="d-nome" placeholder="Ex: Banco de Dados" required />
+            <label for="d-nome">Nome da Disciplina *</label>
+            <input type="text" id="d-nome" placeholder="Ex: Banco de Dados I" required />
           </div>
           <div class="form-group">
             <label for="d-ch">Carga Horária (h) *</label>
@@ -256,12 +264,12 @@
       <form id="form-matricula">
         <div class="form-grid">
           <div class="form-group">
-            <label for="m-estudante-id">ID do Estudante *</label>
-            <input type="number" id="m-estudante-id" placeholder="ID do estudante" required />
+            <label for="m-estudante-id">Código do Estudante (FK) *</label>
+            <input type="number" id="m-estudante-id" placeholder="Código do estudante" required />
           </div>
           <div class="form-group">
-            <label for="m-disciplina-id">ID da Disciplina *</label>
-            <input type="number" id="m-disciplina-id" placeholder="ID da disciplina" required />
+            <label for="m-disciplina-codigo">Código da Disciplina (FK) *</label>
+            <input type="text" id="m-disciplina-codigo" placeholder="Ex: CC001" required />
           </div>
           <div class="form-group">
             <label for="m-semestre">Semestre *</label>
@@ -269,7 +277,7 @@
           </div>
           <div class="form-group">
             <label for="m-ano">Ano *</label>
-            <input type="number" id="m-ano" placeholder="Ex: 2024" required />
+            <input type="number" id="m-ano" placeholder="Ex: 2024" min="1900" max="9999" required />
           </div>
           <div class="form-group">
             <label for="m-nota">Nota Final</label>
@@ -300,12 +308,12 @@
       <form id="form-ministra">
         <div class="form-grid">
           <div class="form-group">
-            <label for="mn-funcionario-id">ID do Funcionário *</label>
-            <input type="number" id="mn-funcionario-id" placeholder="ID do funcionário" required />
+            <label for="mn-funcionario-id">Código do Funcionário (FK) *</label>
+            <input type="number" id="mn-funcionario-id" placeholder="Código do funcionário" required />
           </div>
           <div class="form-group">
-            <label for="mn-disciplina-id">ID da Disciplina *</label>
-            <input type="number" id="mn-disciplina-id" placeholder="ID da disciplina" required />
+            <label for="mn-disciplina-codigo">Código da Disciplina (FK) *</label>
+            <input type="text" id="mn-disciplina-codigo" placeholder="Ex: CC001" required />
           </div>
         </div>
         <div class="btn-row">
@@ -328,29 +336,32 @@
   ════════════════════════════════════════════════════════════ -->
   <section class="tab-content" id="tab-orientacao">
     <div class="card">
-      <h2>🔗 Registrar Orientação</h2>
+      <h2>🔗 Registrar / Alterar Orientação</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px;">
+        No modelo físico, a orientação é armazenada no atributo <code>id_orientador</code> da tabela <code>ESTUDANTE</code> (autorrelacionamento com <code>FUNCIONARIO</code>).
+      </p>
       <form id="form-orientacao">
         <div class="form-grid">
           <div class="form-group">
-            <label for="o-orientador-id">ID do Funcionário (Orientador) *</label>
-            <input type="number" id="o-orientador-id" placeholder="ID do funcionário" required />
+            <label for="o-orientado-id">Código do Estudante (Orientado) *</label>
+            <input type="number" id="o-orientado-id" placeholder="Código do estudante" required />
           </div>
           <div class="form-group">
-            <label for="o-orientado-id">ID do Estudante (Orientado) *</label>
-            <input type="number" id="o-orientado-id" placeholder="ID do estudante" required />
+            <label for="o-orientador-id">Código do Funcionário (Orientador) *</label>
+            <input type="number" id="o-orientador-id" placeholder="Código do funcionário" required />
           </div>
         </div>
         <div class="btn-row">
-          <button type="submit">➕ Registrar</button>
-          <button type="button" id="btn-list-orientacao" class="btn-secondary">🔄 Listar Todas</button>
+          <button type="submit">➕ Atribuir Orientador</button>
+          <button type="button" id="btn-list-orientacao" class="btn-secondary">🔄 Listar Orientações</button>
         </div>
       </form>
     </div>
 
     <div class="card">
-      <h2>📋 Orientações</h2>
+      <h2>📋 Orientações Ativas</h2>
       <div id="table-orientacao" class="table-wrapper">
-        <p class="placeholder-msg">Clique em "Listar Todas" para carregar.</p>
+        <p class="placeholder-msg">Clique em "Listar Orientações" para carregar.</p>
       </div>
     </div>
   </section>

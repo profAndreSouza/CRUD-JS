@@ -68,13 +68,11 @@ function renderTable(containerId, rows, idCol = null) {
 
 // ── Mapa de deleção por entidade ───────────────────────────────
 const deleteHandlers = {
-  id_pessoa: (id) => DB.Pessoa.deletar(id),
-  id_estudante: (id) => DB.Estudante.deletar(id),
-  id_funcionario: (id) => DB.Funcionario.deletar(id),
-  id_disciplina: (id) => DB.Disciplina.deletar(id),
-  id_md: (id) => DB.MatriculaDisciplina.deletar(id),
-  id_ministra: (id) => DB.Ministra.deletar(id),
-  id_orientacao: (id) => DB.Orientacao.deletar(id),
+  codigo:          (id) => DB.Pessoa.deletar(id),
+  codigo_pessoa:   (id) => DB.Pessoa.deletar(id),
+  codigo_estudante:(id) => DB.Estudante.deletar(id),
+  codigo_func:     (id) => DB.Funcionario.deletar(id),
+  codigo_disc:     (id) => DB.Disciplina.deletar(id),
 };
 
 /**
@@ -83,7 +81,11 @@ const deleteHandlers = {
 function handleDelete(idCol, id, btn) {
   if (!confirm(`Deseja deletar o registro com ${idCol} = ${id}?`)) return;
   try {
-    deleteHandlers[idCol]?.(id);
+    if (deleteHandlers[idCol]) {
+      deleteHandlers[idCol](id);
+    } else {
+      DB.Pessoa.deletar(id);
+    }
     btn.closest('tr').remove();
     showToast('Registro deletado com sucesso.', 'success');
   } catch (err) {
@@ -263,20 +265,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('form-pessoa').addEventListener('submit', e => {
     e.preventDefault();
     try {
+      const codVal = document.getElementById('p-codigo').value;
       DB.Pessoa.inserir({
-        nome: document.getElementById('p-nome').value,
-        documento: document.getElementById('p-documento').value,
-        logradouro: document.getElementById('p-logradouro').value,
-        numero: document.getElementById('p-numero').value,
-        complemento: document.getElementById('p-complemento').value,
-        bairro: document.getElementById('p-bairro').value,
-        cidade: document.getElementById('p-cidade').value,
-        estado: document.getElementById('p-estado').value,
-        cep: document.getElementById('p-cep').value,
+        codigo:      codVal ? parseInt(codVal) : null,
+        documento:   document.getElementById('p-documento').value,
+        nome:        document.getElementById('p-nome').value,
+        logradouro:  document.getElementById('p-logradouro').value,
+        numero:      document.getElementById('p-numero').value,
+        complemento: document.getElementById('p-complemento').value || null,
+        bairro:      document.getElementById('p-bairro').value,
+        cidade:      document.getElementById('p-cidade').value,
+        estado:      document.getElementById('p-estado').value.toUpperCase(),
+        cep:         document.getElementById('p-cep').value,
       });
       e.target.reset();
       showToast('Pessoa inserida com sucesso!', 'success');
-      renderTable('table-pessoa', DB.Pessoa.listarTodos(), 'id_pessoa');
+      renderTable('table-pessoa', DB.Pessoa.listarTodos(), 'codigo');
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -284,7 +288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-pessoa').addEventListener('click', () => {
     try {
-      renderTable('table-pessoa', DB.Pessoa.listarTodos(), 'id_pessoa');
+      renderTable('table-pessoa', DB.Pessoa.listarTodos(), 'codigo');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -294,14 +298,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('form-estudante').addEventListener('submit', e => {
     e.preventDefault();
     try {
+      const orientadorVal = document.getElementById('e-orientador').value;
       DB.Estudante.inserir({
-        id_pessoa: parseInt(document.getElementById('e-pessoa-id').value),
-        num_matricula: document.getElementById('e-matricula').value,
-        curso: document.getElementById('e-curso').value,
+        codigo:        parseInt(document.getElementById('e-codigo').value),
+        matricula:     document.getElementById('e-matricula').value,
+        curso:         document.getElementById('e-curso').value,
+        id_orientador: orientadorVal ? parseInt(orientadorVal) : null,
       });
       e.target.reset();
       showToast('Estudante inserido com sucesso!', 'success');
-      renderTable('table-estudante', DB.Estudante.listarTodos(), 'id_estudante');
+      renderTable('table-estudante', DB.Estudante.listarTodos(), 'codigo');
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -309,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-estudante').addEventListener('click', () => {
     try {
-      renderTable('table-estudante', DB.Estudante.listarTodos(), 'id_estudante');
+      renderTable('table-estudante', DB.Estudante.listarTodos(), 'codigo');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -320,14 +326,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Funcionario.inserir({
-        id_pessoa: parseInt(document.getElementById('f-pessoa-id').value),
+        codigo:             parseInt(document.getElementById('f-codigo').value),
         registro_funcional: document.getElementById('f-registro').value,
-        data_admissao: document.getElementById('f-admissao').value,
-        setor: document.getElementById('f-setor').value,
+        data_admissao:      document.getElementById('f-admissao').value,
+        setor_lotacao:      document.getElementById('f-setor').value,
       });
       e.target.reset();
       showToast('Funcionário inserido com sucesso!', 'success');
-      renderTable('table-funcionario', DB.Funcionario.listarTodos(), 'id_funcionario');
+      renderTable('table-funcionario', DB.Funcionario.listarTodos(), 'codigo');
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -335,7 +341,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-funcionario').addEventListener('click', () => {
     try {
-      renderTable('table-funcionario', DB.Funcionario.listarTodos(), 'id_funcionario');
+      renderTable('table-funcionario', DB.Funcionario.listarTodos(), 'codigo');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -346,13 +352,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Disciplina.inserir({
-        codigo: document.getElementById('d-codigo').value,
-        nome: document.getElementById('d-nome').value,
+        codigo:        document.getElementById('d-codigo').value.trim(),
+        nome:          document.getElementById('d-nome').value,
         carga_horaria: parseInt(document.getElementById('d-ch').value),
       });
       e.target.reset();
       showToast('Disciplina inserida com sucesso!', 'success');
-      renderTable('table-disciplina', DB.Disciplina.listarTodas(), 'id_disciplina');
+      renderTable('table-disciplina', DB.Disciplina.listarTodas(), 'codigo');
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -360,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-disciplina').addEventListener('click', () => {
     try {
-      renderTable('table-disciplina', DB.Disciplina.listarTodas(), 'id_disciplina');
+      renderTable('table-disciplina', DB.Disciplina.listarTodas(), 'codigo');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -372,15 +378,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const nota = document.getElementById('m-nota').value;
       DB.MatriculaDisciplina.inserir({
-        id_estudante: parseInt(document.getElementById('m-estudante-id').value),
-        id_disciplina: parseInt(document.getElementById('m-disciplina-id').value),
-        semestre: parseInt(document.getElementById('m-semestre').value),
-        ano: parseInt(document.getElementById('m-ano').value),
-        nota_final: nota !== '' ? parseFloat(nota) : null,
+        id_estudante:      parseInt(document.getElementById('m-estudante-id').value),
+        disciplina_codigo: document.getElementById('m-disciplina-codigo').value.trim(),
+        semestre:          parseInt(document.getElementById('m-semestre').value),
+        ano:               parseInt(document.getElementById('m-ano').value),
+        nota_final:        nota !== '' ? parseFloat(nota) : null,
       });
       e.target.reset();
       showToast('Matrícula em disciplina inserida!', 'success');
-      renderTable('table-matricula', DB.MatriculaDisciplina.listarTodas(), 'id_md');
+      renderTable('table-matricula', DB.MatriculaDisciplina.listarTodas());
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -388,7 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-matricula').addEventListener('click', () => {
     try {
-      renderTable('table-matricula', DB.MatriculaDisciplina.listarTodas(), 'id_md');
+      renderTable('table-matricula', DB.MatriculaDisciplina.listarTodas());
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -399,12 +405,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       DB.Ministra.inserir({
-        id_funcionario: parseInt(document.getElementById('mn-funcionario-id').value),
-        id_disciplina: parseInt(document.getElementById('mn-disciplina-id').value),
+        id_funcionario:    parseInt(document.getElementById('mn-funcionario-id').value),
+        disciplina_codigo: document.getElementById('mn-disciplina-codigo').value.trim(),
       });
       e.target.reset();
-      showToast('Atribuição inserida!', 'success');
-      renderTable('table-ministra', DB.Ministra.listarTodas(), 'id_ministra');
+      showToast('Atribuição docente inserida!', 'success');
+      renderTable('table-ministra', DB.Ministra.listarTodas());
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -412,23 +418,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-ministra').addEventListener('click', () => {
     try {
-      renderTable('table-ministra', DB.Ministra.listarTodas(), 'id_ministra');
+      renderTable('table-ministra', DB.Ministra.listarTodas());
     } catch (err) {
       showToast(err.message, 'error');
     }
   });
 
-  // ── ORIENTAÇÃO ───────────────────────────────────────────────
+  // ── ORIENTAÇÃO (ESTUDANTE.id_orientador) ──────────────────────
   document.getElementById('form-orientacao').addEventListener('submit', e => {
     e.preventDefault();
     try {
-      DB.Orientacao.inserir({
+      DB.Orientacao.definir({
         id_funcionario: parseInt(document.getElementById('o-orientador-id').value),
-        id_estudante: parseInt(document.getElementById('o-orientado-id').value),
+        id_estudante:   parseInt(document.getElementById('o-orientado-id').value),
       });
       e.target.reset();
-      showToast('Orientação registrada!', 'success');
-      renderTable('table-orientacao', DB.Orientacao.listarTodas(), 'id_orientacao');
+      showToast('Orientador atribuído com sucesso!', 'success');
+      renderTable('table-orientacao', DB.Orientacao.listarTodas());
     } catch (err) {
       showToast(`Erro: ${err.message}`, 'error');
     }
@@ -436,7 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-list-orientacao').addEventListener('click', () => {
     try {
-      renderTable('table-orientacao', DB.Orientacao.listarTodas(), 'id_orientacao');
+      renderTable('table-orientacao', DB.Orientacao.listarTodas());
     } catch (err) {
       showToast(err.message, 'error');
     }
