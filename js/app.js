@@ -103,12 +103,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Carrega sql.js WASM e cria o banco ──────────────────────
   try {
     await DB.init();
-    statusEl.textContent = '✅ Banco pronto (memória)';
+    statusEl.textContent = '✅ SQLite pronto (aguardando DDL)';
     statusEl.className = 'badge badge-success';
     btnInit.disabled = false;
     btnClear.disabled = false;
     btnExport.disabled = false;
-    showToast('Banco SQLite inicializado com sucesso!', 'success');
+    showToast('Motor SQLite pronto! Crie as tabelas via DDL ou Console.', 'info');
   } catch (err) {
     statusEl.textContent = '❌ Erro ao carregar banco';
     statusEl.className = 'badge badge-danger';
